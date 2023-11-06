@@ -1,0 +1,2 @@
+En esta carpeta se guardaran todos los logs creados por los scripts.
+Prueba a hacer un comando, y veras que se creara un archivo y empezara a hacer registro de cada acción importante ahi!
