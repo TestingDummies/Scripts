@@ -8,7 +8,9 @@ menu_respaldo() {
 	echo "MENU PRINCIPAL"
 	echo "1) Respaldo local"
 	echo "2) Respaldo remoto"
-	echo "3) Salir"
+	echo "3) Respaldo local de la BD"
+	echo "4) Respaldo remoto de la BD"
+	echo "5) Salir"
 
 	read -p "Seleccione una opcion: " opcion
 
@@ -28,8 +30,26 @@ menu_respaldo() {
 					mandarlogBACKUP "rsync -avz -e $rrespaldo $rusuario@$rdireccion:$rdestino"
 			;;
 		3) 	
-			exit
+			read -p "Escriba el nombre del contenedor MYSQL del docker: " nomcontainer
+			reap -p "Escribe el nombre de la base de datos: " nombd
+			read -p "Escibre en que ruta quieres que se guarde (Barra en el final y al principio): " ruta
+			
+			docker exec -i $nomcontainer mysqldump -u root -p $nombd > "$ruta"respaldokarate_$(date +"%d-%m-%Y").sql
+			mandarlogBACKUP "docker exec -i $nomcontainer mysqldump -u root -p $nombd > "$ruta"respaldokarate_$(date +"%d-%m-%Y").sql"
 			;;
+
+		4) 
+		read -p "Escriba el nombre del contenedor MYSQL del docker: " nomcontainer
+		read -p "Escribe el nombre de la base de datos: " nombd
+		read -p "Escriba la IP del servidor remoto: " ipruta
+		read -p "Escriba el nombre de su usuario en el servidor remoto: " nomrem
+		read -p "Escriba en que ruta quieres que se guarde (Barra en el final y al principio): " rutadest
+		docker exec -i $nomcontainer mysqldump -u root -p $nombd > respaldokarate_$(date +"%d-%m-%Y").sql && rsync -av respaldokarate_$(date +”%d-%m-%Y”).sql "$nomrem"@"$ipruta":$rutadest
+		mandarlog "docker exec -i $nomcontainer mysqldump -u root -p $nombd > respaldokarate_$(date +"%d-%m-%Y").sql && rsync -av respaldokarate_$(date +”%d-%m-%Y”).sql "$nomrem"@"$ipruta":$rutadest"
+		;;
+		5)
+		exit
+		;;
 		*)
 			echo "Opcion no valida."
 			;;

@@ -30,6 +30,7 @@ case $opcion in
     mandarlogRED "ip addr show $variable"
     ;;
 3) echo "Entraste a la configuración de la IP"
+echo "Recuerda, estos cambios son TEMPORALES, al apagar el sistema se reiniciaran. Si quieres hacer un cambio permanente debes consultar el documento"
     read -p "¿Cual es el nombre de la red a cambiar?: " nombrered
     read -p "¿Cual va a ser su nueva ip?: " variableip
     read -p "¿Cual va a ser su nueva mascara?: " variablemasc

@@ -230,12 +230,13 @@ grupo() {
 		;;
 	esac
 }
-
 menu_respaldo() {
 	echo "MENU PRINCIPAL"
 	echo "1) Respaldo local"
 	echo "2) Respaldo remoto"
-	echo "3) Salir"
+	echo "3) Respaldo local de la BD"
+	echo "4) Respaldo remoto de la BD"
+	echo "5) Salir"
 
 	read -p "Seleccione una opcion: " opcion
 
@@ -255,20 +256,41 @@ menu_respaldo() {
 					mandarlogBACKUP "rsync -avz -e $rrespaldo $rusuario@$rdireccion:$rdestino"
 			;;
 		3) 	
-			exit
+			read -p "Escriba el nombre del contenedor MYSQL del docker: " nomcontainer
+			reap -p "Escribe el nombre de la base de datos: " nombd
+			read -p "Escibre en que ruta quieres que se guarde (Barra en el final y al principio): " ruta
+			
+			docker exec -i $nomcontainer mysqldump -u root -p $nombd > "$ruta"respaldokarate_$(date +"%d-%m-%Y").sql
+			mandarlogBACKUP "docker exec -i $nomcontainer mysqldump -u root -p $nombd > "$ruta"respaldokarate_$(date +"%d-%m-%Y").sql"
 			;;
+
+		4) 
+		read -p "Escriba el nombre del contenedor MYSQL del docker: " nomcontainer
+		read -p "Escribe el nombre de la base de datos: " nombd
+		read -p "Escriba la IP del servidor remoto: " ipruta
+		read -p "Escriba el nombre de su usuario en el servidor remoto: " nomrem
+		read -p "Escriba en que ruta quieres que se guarde (Barra en el final y al principio): " rutadest
+		docker exec -i $nomcontainer mysqldump -u root -p $nombd > respaldokarate_$(date +"%d-%m-%Y").sql && rsync -av respaldokarate_$(date +”%d-%m-%Y”).sql "$nomrem"@"$ipruta":$rutadest
+		mandarlog "docker exec -i $nomcontainer mysqldump -u root -p $nombd > respaldokarate_$(date +"%d-%m-%Y").sql && rsync -av respaldokarate_$(date +”%d-%m-%Y”).sql "$nomrem"@"$ipruta":$rutadest"
+		;;
+		5)
+		exit
+		;;
 		*)
 			echo "Opcion no valida."
 			;;
 		esac
 	}
 
+
 menu_ip() {
 	echo "MENU PRINCIPAL"
+	echo "Recuerda, todos los cambios se hacen en la zona publica"
 	echo "1) Permitir una IP"
 	echo "2) Bloquear una IP"
 	echo "3) Recargar firewall"
-	echo "4) Salir"
+	echo "4) Ver reglas de la zona"
+	echo "5) Salir"
 
 	read -p "Seleccione una opcion: " opcion
 
@@ -291,6 +313,11 @@ menu_ip() {
 					menu_ip
 			;;
 		4) 
+			firewall-cmd --list-all
+			mandarlogFIREWALL "firewall-cmd --list-all"
+			menu_ip
+			;;
+		5)
 			exit
 			;;
 		*) 
@@ -327,6 +354,7 @@ case $opcion in
     mandarlogRED "ip addr show $variable"
     ;;
 3) echo "Entraste a la configuración de la IP"
+echo "Recuerda, estos cambios son TEMPORALES, al apagar el sistema se reiniciaran. Si quieres hacer un cambio permanente debes consultar el documento"
     read -p "¿Cual es el nombre de la red a cambiar?: " nombrered
     read -p "¿Cual va a ser su nueva ip?: " variableip
     read -p "¿Cual va a ser su nueva mascara?: " variablemasc

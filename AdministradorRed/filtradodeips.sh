@@ -6,10 +6,12 @@ mandarlogFIREWALL() {
 
 menu_ip() {
 	echo "MENU PRINCIPAL"
+	echo "Recuerda, todos los cambios se hacen en la zona publica"
 	echo "1) Permitir una IP"
 	echo "2) Bloquear una IP"
 	echo "3) Recargar firewall"
-	echo "4) Salir"
+	echo "4) Ver reglas de la zona"
+	echo "5) Salir"
 
 	read -p "Seleccione una opcion: " opcion
 
@@ -32,6 +34,11 @@ menu_ip() {
 					menu_ip
 			;;
 		4) 
+			firewall-cmd --list-all
+			mandarlogFIREWALL "firewall-cmd --list-all"
+			menu_ip
+			;;
+		5)
 			exit
 			;;
 		*) 
